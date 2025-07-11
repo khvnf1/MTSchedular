@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Favicon / Icon for the website -->
+    <!-- Favicon / Icon for the website (for browser tab/window) -->
     <link rel="icon" href="MTS.png" type="image/png">
     <link rel="icon" href="MTS.ico" type="image/x-icon">
     <style>
@@ -187,6 +187,8 @@
 
         <header class="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div class="flex items-center gap-4">
+                <!-- Icon added here -->
+                <img id="header-icon" src="MTS.png" onerror="this.onerror=null;this.src='MTS.ico';" alt="MTS Icon" class="w-8 h-8 mr-2">
                 <h1 class="text-3xl font-bold themed-text">My Week</h1>
                 <span id="week-display" class="text-xl themed-text-secondary font-medium">Week 11</span>
             </div>
