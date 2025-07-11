@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Favicon / Icon for the website -->
     <link rel="icon" href="MTS.png" type="image/png">
+    <link rel="icon" href="MTS.ico" type="image/x-icon">
     <style>
         :root {
             --bg-color: #111827;
@@ -248,7 +249,7 @@
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
             <h2 id="modal-title" class="text-2xl font-bold mb-6 themed-text">Add New Task</h2>
             <form id="task-form">
-                <input type="hidden" id="task-id"><input type="hidden" id="task-day"><input type="hidden" id="task-row">
+                <input type="hidden" id="task-id"><input type="hidden" id="hidden-task-day"><input type="hidden" id="hidden-task-row">
                 <div class="mb-4">
                     <label for="task-name" class="block text-sm font-medium themed-text-secondary mb-2">Task / Class Name</label>
                     <textarea id="task-name" class="w-full themed-bg-tertiary themed-text px-4 py-2 rounded-lg border-2 themed-border themed-border-focus transition" rows="4" required></textarea>
@@ -639,8 +640,9 @@
                 document.getElementById('delete-task-btn').classList.toggle('hidden', !task);
                 document.getElementById('modal-title').textContent = task ? 'Edit Task' : 'Add New Task';
                 
-                document.getElementById('task-day').value = day;
-                document.getElementById('task-row').value = row;
+                // Corrected IDs for task-day and task-row
+                document.getElementById('hidden-task-day').value = day;
+                document.getElementById('hidden-task-row').value = row;
                 
                 document.querySelectorAll('.color-option').forEach(el => el.style.border = '2px solid transparent');
                 const colorInput = document.getElementById('task-color');
@@ -696,8 +698,9 @@
                 const id = document.getElementById('task-id').value;
                 const name = document.getElementById('task-name').value;
                 const color = document.getElementById('task-color').value;
-                const day = document.getElementById('task-day').value;
-                const row = document.getElementById('task-row').value;
+                // Corrected IDs for task-day and task-row
+                const day = document.getElementById('hidden-task-day').value;
+                const row = document.getElementById('hidden-task-row').value;
                 const taskKey = `${currentWeek}-${day}-${row}`;
 
                 if (!tasks[taskKey]) tasks[taskKey] = [];
