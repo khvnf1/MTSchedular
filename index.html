@@ -173,6 +173,67 @@
             -webkit-backdrop-filter: blur(var(--current-blur-amount));
             border-color: rgba(75, 85, 99, 0.5); /* Semi-transparent border for glassy look */
         }
+
+        /* --- Animation Level Adjustments --- */
+        /* Reduced Animations */
+        body.animation-reduced .grid-cell,
+        body.animation-reduced .add-btn,
+        body.animation-reduced .task-card,
+        body.animation-reduced .modal-backdrop,
+        body.animation-reduced .modal-content,
+        body.animation-reduced button {
+            transition-duration: 0.15s !important; /* Shorter duration */
+        }
+        body.animation-reduced .task-card:hover {
+            transform: translateY(-1px); /* Less dramatic hover */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Less intense shadow */
+        }
+        body.animation-reduced .deletable-link {
+            animation-duration: 4s !important; /* Slower pulse */
+        }
+        body.animation-reduced .modal-content {
+             /* Keep transform and opacity transitions but shorter duration */
+        }
+
+        /* No Animations */
+        body.animation-none .grid-cell,
+        body.animation-none .add-btn,
+        body.animation-none .task-card,
+        body.animation-none .modal-backdrop,
+        body.animation-none .modal-content,
+        body.animation-none button,
+        body.animation-none #theme-toggle,
+        body.animation-none #prev-week,
+        body.animation-none #next-week,
+        body.animation-none #reset-btn,
+        body.animation-none #export-data-btn,
+        body.animation-none #import-data-btn,
+        body.animation-none #upload-background-btn,
+        body.animation-none #toggle-delete-link-btn,
+        body.animation-none #add-link-btn,
+        body.animation-none #revert-background-btn,
+        body.animation-none #upload-new-background-btn,
+        body.animation-none #cancel-background-options-btn,
+        body.animation-none #clear-current-week-btn,
+        body.animation-none #clear-all-weeks-btn,
+        body.animation-none #cancel-reset-btn {
+            transition: none !important; /* Remove all transitions */
+        }
+        body.animation-none .task-card:hover {
+            transform: none !important; /* Remove hover transform */
+            box-shadow: none !important; /* Remove hover shadow */
+        }
+        body.animation-none .modal-content {
+            transform: none !important; /* No initial transform */
+            opacity: 1 !important; /* Always visible if active */
+        }
+        body.animation-none .deletable-link {
+            animation: none !important; /* Remove animation */
+            border: 2px dashed #ef4444; /* Keep static border */
+        }
+        body.animation-none {
+            transition: none !important; /* Remove body background/color transitions */
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -218,6 +279,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
                 <button id="reset-btn" class="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition">Reset</button>
+                <!-- New Animation Settings Button -->
+                <button id="animation-settings-btn" class="p-2 rounded-md themed-bg-tertiary hover:bg-gray-600 transition-colors" title="Animation Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 6 19.4a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 2-2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 6a1.65 1.65 0 0 0 .33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9.09A1.65 1.65 0 0 0 10 3V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1 .51l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V15z"></path>
+                    </svg>
+                </button>
             </div>
         </header>
 
@@ -324,6 +392,20 @@
         </div>
     </div>
 
+    <!-- New Animation Settings Modal -->
+    <div id="animation-settings-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8 text-center">
+            <h2 class="text-2xl font-bold mb-6 themed-text">Animation Settings</h2>
+            <p class="themed-text-secondary mb-8">Choose your preferred animation level:</p>
+            <div class="flex flex-col gap-4">
+                <button id="animation-normal-btn" class="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Normal Animations</button>
+                <button id="animation-reduced-btn" class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">Reduced Animations</button>
+                <button id="animation-none-btn" class="px-6 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold transition">No Animations</button>
+                <button id="cancel-animation-settings-btn" class="px-6 py-3 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Function to show a custom message box instead of alert()
         function showMessageBox(message) {
@@ -343,6 +425,7 @@
             const linkModal = document.getElementById('link-modal');
             const resetModal = document.getElementById('reset-modal');
             const backgroundOptionsModal = document.getElementById('background-options-modal');
+            const animationSettingsModal = document.getElementById('animation-settings-modal'); // New
             const themeToggle = document.getElementById('theme-toggle');
             const toggleDeleteLinkBtn = document.getElementById('toggle-delete-link-btn');
             const exportDataBtn = document.getElementById('export-data-btn');
@@ -353,12 +436,17 @@
             const revertBackgroundBtn = document.getElementById('revert-background-btn');
             const uploadNewBackgroundBtn = document.getElementById('upload-new-background-btn');
             const cancelBackgroundOptionsBtn = document.getElementById('cancel-background-options-btn');
+            const animationSettingsBtn = document.getElementById('animation-settings-btn'); // New
+            const animationNormalBtn = document.getElementById('animation-normal-btn'); // New
+            const animationReducedBtn = document.getElementById('animation-reduced-btn'); // New
+            const animationNoneBtn = document.getElementById('animation-none-btn'); // New
+            const cancelAnimationSettingsBtn = document.getElementById('cancel-animation-settings-btn'); // New
             
-            // New elements for blur functionality
+            // Elements for blur functionality
             const quickLinksSection = document.getElementById('quick-links-section');
             const weeklyGoalSection = document.getElementById('weekly-goal-section');
             const blurSlider = document.getElementById('blur-slider');
-            const blurSliderContainer = document.querySelector('.blur-slider-container'); // Get the container
+            const blurSliderContainer = document.querySelector('.blur-slider-container');
 
             // --- State Variables ---
             const days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -368,6 +456,7 @@
             let links = []; // [{id, name, url}]
             let isLinkDeleteMode = false;
             let weekDates = {}; // { 'weekNumber': 'YYYY-MM-DD' (date of Saturday for that week) }
+            let animationLevel = 'normal'; // New: 'normal', 'reduced', 'none'
 
             // --- Date Formatting Helper ---
             const formatDate = (date) => {
@@ -397,6 +486,7 @@
                 const savedWeekDates = localStorage.getItem('timetableWeekDates');
                 const savedBackground = localStorage.getItem('customBackground');
                 const savedBlurAmount = localStorage.getItem('blurAmount');
+                const savedAnimationLevel = localStorage.getItem('animationLevel'); // New
 
                 if (savedTasks) tasks = JSON.parse(savedTasks);
                 if (savedLinks) links = JSON.parse(savedLinks);
@@ -421,6 +511,10 @@
                     document.body.style.setProperty('--current-blur-amount', `0px`);
                 }
 
+                // Apply saved animation level
+                animationLevel = savedAnimationLevel || 'normal';
+                applyAnimationLevel(animationLevel);
+
                 // Initialize current week's date if not set
                 if (!weekDates[currentWeek]) {
                     setWeekToCurrentDate(currentWeek);
@@ -435,6 +529,7 @@
                 localStorage.setItem('timetableGoal', document.getElementById('weekly-goal').value);
                 localStorage.setItem('timetableTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
                 localStorage.setItem('timetableWeekDates', JSON.stringify(weekDates));
+                localStorage.setItem('animationLevel', animationLevel); // New: Save animation level
                 
                 const currentBackground = document.body.style.backgroundImage;
                 if (currentBackground && currentBackground.startsWith('url("data:image/')) {
@@ -873,7 +968,8 @@
                     currentWeek: currentWeek, // Also export current week
                     weeklyGoal: document.getElementById('weekly-goal').value, // Also export current week's goal
                     customBackground: localStorage.getItem('customBackground'), // Include custom background
-                    blurAmount: localStorage.getItem('blurAmount') // Include blur amount
+                    blurAmount: localStorage.getItem('blurAmount'), // Include blur amount
+                    animationLevel: animationLevel // New: Include animation level
                 };
                 const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
 
@@ -933,6 +1029,10 @@
                                 document.body.style.setProperty('--current-blur-amount', `0px`);
                                 localStorage.removeItem('blurAmount');
                             }
+
+                            // Apply imported animation level
+                            animationLevel = importedData.animationLevel || 'normal';
+                            applyAnimationLevel(animationLevel);
 
                             saveState(); // Save imported data to local storage
                             renderTimetable(); // Re-render the UI with new data
@@ -1009,6 +1109,40 @@
                 document.body.style.setProperty('--current-blur-amount', `${blurValue}px`);
                 saveState(); // Save the new blur amount
             });
+
+            // --- Animation Settings Logic ---
+            animationSettingsBtn.addEventListener('click', () => {
+                openModal(animationSettingsModal);
+            });
+
+            animationNormalBtn.addEventListener('click', () => {
+                setAnimationLevel('normal');
+            });
+
+            animationReducedBtn.addEventListener('click', () => {
+                setAnimationLevel('reduced');
+            });
+
+            animationNoneBtn.addEventListener('click', () => {
+                setAnimationLevel('none');
+            });
+
+            cancelAnimationSettingsBtn.addEventListener('click', () => {
+                closeModal(animationSettingsModal);
+            });
+
+            function setAnimationLevel(level) {
+                animationLevel = level;
+                applyAnimationLevel(level);
+                saveState();
+                closeModal(animationSettingsModal);
+                showMessageBox(`Animations set to '${level.charAt(0).toUpperCase() + level.slice(1)}'`);
+            }
+
+            function applyAnimationLevel(level) {
+                document.body.classList.remove('animation-normal', 'animation-reduced', 'animation-none');
+                document.body.classList.add(`animation-${level}`);
+            }
 
             // --- Initial Load ---
             loadState();
