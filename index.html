@@ -485,7 +485,7 @@
         <header class="flex items-center justify-between mb-8 flex-wrap gap-4 relative">
             <div class="flex items-center gap-4">
                 <!-- Icon added here -->
-                <img id="header-icon" src="MTS.png" onerror="this.onerror=null;this.src='MTS.ico';" alt="MTS Icon" class="w-8 h-8 mr-2">
+                <img id="header-icon" src="MTS.png" onerror="this.onerror=null;this.src='https://placehold.co/32x32/111827/f3f4f6?text=MTS';" alt="MTS Icon" class="w-8 h-8 mr-2">
                 <h1 class="text-3xl font-bold themed-text">My Week</h1>
                 <span id="week-display" class="text-xl themed-text-secondary font-medium">Week 11</span>
             </div>
@@ -2430,22 +2430,27 @@
 
             // --- Export/Import Functionality ---
             exportDataBtn.addEventListener('click', () => {
+                // This object contains ALL data and settings that will be exported.
+                // It includes timetable tasks, week dates, quick links, courses, upcoming tasks,
+                // selected day, active course, delete mode status, current week, weekly goal,
+                // custom background image and blur, animation level, displayed upcoming task,
+                // and custom class types and venues.
                 const dataToExport = {
                     tasks: tasks,
                     weekDates: weekDates,
-                    links: links, // Include quick links in export
-                    courses: courses, // Include courses
-                    upcomingTasks: upcomingTasks, // Include upcoming tasks
-                    selectedDay: selectedDay, // Include selected day
-                    activeCourseId: activeCourseId, // Include active course ID
-                    activeCourseColor: activeCourseColor, // Include active course color
-                    isCourseDeleteMode: isCourseDeleteMode, // Include delete mode state
-                    currentWeek: currentWeek, // Also export current week
-                    weeklyGoal: document.getElementById('weekly-goal').value, // Also export current week's goal
-                    customBackground: localStorage.getItem('customBackground'), // Include custom background
-                    blurAmount: localStorage.getItem('blurAmount'), // Include blur amount
-                    animationLevel: animationLevel, // Include animation level
-                    displayedUpcomingTaskId: displayedUpcomingTaskId, // Include displayed upcoming task ID
+                    links: links, 
+                    courses: courses, 
+                    upcomingTasks: upcomingTasks, 
+                    selectedDay: selectedDay, 
+                    activeCourseId: activeCourseId, 
+                    activeCourseColor: activeCourseColor, 
+                    isCourseDeleteMode: isCourseDeleteMode, 
+                    currentWeek: currentWeek, 
+                    weeklyGoal: document.getElementById('weekly-goal').value, 
+                    customBackground: localStorage.getItem('customBackground'), 
+                    blurAmount: localStorage.getItem('blurAmount'), 
+                    animationLevel: animationLevel, 
+                    displayedUpcomingTaskId: displayedUpcomingTaskId, 
                     classTypes: classTypes,
                     venues: venues
                 };
