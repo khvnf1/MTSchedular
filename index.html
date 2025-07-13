@@ -406,6 +406,24 @@
             color: rgba(255, 255, 255, 0.8);
             margin-top: 0.25rem;
         }
+        /* Styles for class items in the select-class modal */
+        .select-class-item {
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .select-class-item:hover {
+            opacity: 0.9;
+        }
+        .select-class-item .class-name {
+            font-weight: 600;
+            color: var(--text-primary-color);
+        }
+        .select-class-item .class-details-text {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -2694,8 +2712,26 @@
                     if (course.classes && course.classes.length > 0) {
                         course.classes.forEach(cls => {
                             const classItem = document.createElement('div');
-                            classItem.className = `p-2 rounded-md ${course.color} text-white text-sm cursor-pointer hover:opacity-90 transition`;
-                            classItem.textContent = `${cls.name} (${cls.type || 'N/A'})`;
+                            classItem.className = `select-class-item p-2 rounded-md ${course.color} text-white text-sm cursor-pointer hover:opacity-90 transition`;
+                            
+                            // Construct the details string
+                            let detailsText = `${cls.type || 'N/A'}`;
+                            if (cls.startTime) {
+                                detailsText += ` | ${cls.startTime}`;
+                                if (cls.endTime) detailsText += ` - ${cls.endTime}`;
+                            }
+                            if (cls.locationType) {
+                                detailsText += ` | ${cls.locationType}`;
+                                if (cls.locationType === 'In-person' && cls.venue) {
+                                    detailsText += `: ${cls.venue}`;
+                                }
+                            }
+
+                            classItem.innerHTML = `
+                                <p class="class-name">${cls.name}</p>
+                                <p class="class-details-text">${detailsText}</p>
+                            `;
+
                             classItem.addEventListener('click', (e) => {
                                 e.stopPropagation(); // Prevent courseDiv click
                                 closeModal(selectClassModal);
