@@ -23,6 +23,9 @@
             /* New CSS variables for transparent colors and blur amount */
             --bg-secondary-color-transparent: rgba(31, 41, 55, 0.7);
             --current-blur-amount: 0px; /* Default no blur */
+            /* New distinct color for upcoming tasks section */
+            --upcoming-tasks-bg: #2d3748; /* Darker gray-800 equivalent */
+            --upcoming-tasks-bg-transparent: rgba(45, 55, 72, 0.7);
         }
 
         body.light-mode {
@@ -35,6 +38,8 @@
             --border-focus-color: #4f46e5;
             /* Transparent colors for light mode */
             --bg-secondary-color-transparent: rgba(255, 255, 255, 0.7);
+            --upcoming-tasks-bg: #cbd5e0; /* Light gray-300 equivalent */
+            --upcoming-tasks-bg-transparent: rgba(203, 213, 224, 0.7);
         }
         
         body {
@@ -65,6 +70,13 @@
             backdrop-filter: blur(var(--current-blur-amount));
             -webkit-backdrop-filter: blur(var(--current-blur-amount)); /* For Safari */
         }
+        /* Apply blur and transparency to the new upcoming tasks section */
+        body.custom-background-active .upcoming-tasks-section {
+            background-color: var(--upcoming-tasks-bg-transparent);
+            backdrop-filter: blur(var(--current-blur-amount));
+            -webkit-backdrop-filter: blur(var(--current-blur-amount));
+        }
+
         .grid-cell {
             transition: all 0.2s ease-in-out;
             position: relative;
@@ -181,7 +193,10 @@
         body.animation-reduced .task-card,
         body.animation-reduced .modal-backdrop,
         body.animation-reduced .modal-content,
-        body.animation-reduced button {
+        body.animation-reduced button,
+        body.animation-reduced #sidebar,
+        body.animation-reduced #upcoming-tasks-content,
+        body.animation-reduced #info-box {
             transition-duration: 0.15s !important; /* Shorter duration */
         }
         body.animation-reduced .task-card:hover {
@@ -216,7 +231,10 @@
         body.animation-none #cancel-background-options-btn,
         body.animation-none #clear-current-week-btn,
         body.animation-none #clear-all-weeks-btn,
-        body.animation-none #cancel-reset-btn {
+        body.animation-none #cancel-reset-btn,
+        body.animation-none #sidebar,
+        body.animation-none #upcoming-tasks-content,
+        body.animation-none #info-box {
             transition: none !important; /* Remove all transitions */
         }
         body.animation-none .task-card:hover {
@@ -262,6 +280,132 @@
             border: 2px dashed #ef4444; /* red-500 */
             animation: pulse-faint 2s infinite;
         }
+
+        /* Sidebar specific styles */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 300px; /* Adjust as needed */
+            background-color: var(--bg-secondary-color);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            z-index: 50; /* Below modals but above main content */
+            padding: 1rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        #sidebar.open {
+            transform: translateX(0);
+        }
+        #sidebar-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 60; /* Above sidebar */
+        }
+        .sidebar-content-wrapper {
+            overflow-y: auto; /* Enable scrolling for sidebar content */
+            flex-grow: 1;
+        }
+        .upcoming-tasks-section {
+            background-color: var(--upcoming-tasks-bg);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .upcoming-tasks-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .upcoming-tasks-content.open {
+            max-height: 500px; /* Adjust based on content height */
+        }
+        .current-day-checkbox {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 4px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .current-day-checkbox.checked {
+            background-color: #4ade80; /* Green-400 */
+            border-color: #4ade80;
+        }
+
+        /* Info box styling */
+        #info-box {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            background-color: var(--bg-secondary-color);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+            width: fit-content; /* Make it fit content, not full width */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            text-align: left; /* Align text to the left */
+            margin-left: 0; /* Align to the left */
+            margin-right: auto; /* Push to the left */
+            cursor: pointer; /* Now clickable to open modal */
+        }
+        body.custom-background-active #info-box {
+            background-color: var(--bg-secondary-color-transparent);
+            backdrop-filter: blur(var(--current-blur-amount));
+            -webkit-backdrop-filter: blur(var(--current-blur-amount));
+        }
+        #info-box-content { /* Renamed from info-box-summary for clarity */
+            font-size: 0.875rem; /* text-sm */
+            color: var(--text-secondary-color);
+        }
+        /* Style for individual upcoming task items in the modal */
+        .upcoming-task-item-modal {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upcoming-task-item-modal:hover {
+            opacity: 0.9;
+        }
+        .upcoming-task-item-modal .task-name {
+            font-weight: 600;
+            color: var(--text-primary-color);
+        }
+        .upcoming-task-item-modal .task-due {
+            font-size: 0.75rem;
+            color: var(--text-secondary-color);
+        }
+        .upcoming-task-item-modal .delete-btn-modal {
+            background-color: rgba(239, 68, 68, 0.8); /* red-500 with transparency */
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.75rem;
+            transition: background-color 0.2s ease;
+        }
+        .upcoming-task-item-modal .delete-btn-modal:hover {
+            background-color: #ef4444; /* red-500 solid */
+        }
+
+        /* New styles for class details in task card */
+        .task-card .class-details {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -272,15 +416,80 @@
         <button onclick="hideMessageBox()">OK</button>
     </div>
 
+    <!-- Sidebar Toggle Button -->
+    <button id="sidebar-toggle" class="p-2 rounded-md themed-bg-tertiary hover:bg-gray-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold themed-text">Menu</h2>
+            <button id="close-sidebar-btn" class="p-2 rounded-md themed-bg-tertiary hover:bg-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="sidebar-content-wrapper">
+            <!-- Upcoming Tasks Section (for adding and full list) -->
+            <div class="upcoming-tasks-section p-4 rounded-lg shadow-md mb-4">
+                <div class="flex justify-between items-center mb-4 cursor-pointer" id="toggle-upcoming-tasks">
+                    <h3 class="text-lg font-semibold themed-text">Upcoming Tasks</h3>
+                    <svg id="upcoming-tasks-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 transform rotate-0">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+                <div id="upcoming-tasks-content" class="upcoming-tasks-content">
+                    <div class="mb-4">
+                        <label for="upcoming-task-name" class="block text-sm font-medium themed-text-secondary mb-2">Task Name</label>
+                        <textarea id="upcoming-task-name" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition resize-y" rows="3" placeholder="e.g., Submit Assignment 3"></textarea>
+                    </div>
+                    <div class="flex gap-2 mb-4">
+                        <div class="flex-1">
+                            <label for="upcoming-task-target-week" class="block text-sm font-medium themed-text-secondary mb-2">Target Week</label>
+                            <input type="number" id="upcoming-task-target-week" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition" value="1">
+                        </div>
+                        <div class="flex-1">
+                            <label for="upcoming-task-target-day" class="block text-sm font-medium themed-text-secondary mb-2">Target Day</label>
+                            <select id="upcoming-task-target-day" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition">
+                                <option value="0">Saturday</option>
+                                <option value="1">Sunday</option>
+                                <option value="2">Monday</option>
+                                <option value="3">Tuesday</option>
+                                <option value="4">Wednesday</option>
+                                <option value="5">Thursday</option>
+                                <option value="6">Friday</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="save-upcoming-task-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Upcoming Task</button>
+                    <div id="upcoming-tasks-list" class="mt-4 border-t border-gray-600 pt-4">
+                        <!-- Upcoming tasks will be listed here -->
+                        <p class="themed-text-secondary text-sm">No upcoming tasks added.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Other sidebar content can go here -->
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto">
 
-        <header class="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <header class="flex items-center justify-between mb-8 flex-wrap gap-4 relative">
             <div class="flex items-center gap-4">
                 <!-- Icon added here -->
                 <img id="header-icon" src="MTS.png" onerror="this.onerror=null;this.src='MTS.ico';" alt="MTS Icon" class="w-8 h-8 mr-2">
                 <h1 class="text-3xl font-bold themed-text">My Week</h1>
                 <span id="week-display" class="text-xl themed-text-secondary font-medium">Week 11</span>
             </div>
+
             <div class="flex items-center gap-2 flex-wrap">
                    <button id="export-data-btn" class="px-4 py-2 text-sm rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition">Export Data</button>
                    <input type="file" id="import-data-input" class="hidden" accept=".json">
@@ -311,7 +520,7 @@
                 <button id="animation-settings-btn" class="p-2 rounded-md themed-bg-tertiary hover:bg-gray-600 transition-colors" title="Animation Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 6 19.4a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 2-2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 6a1.65 1.65 0 0 0 .33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9.09A1.65 1.65 0 0 0 10 3V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1 .51l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V15z"></path>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 6 19.4a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 2-2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 6a1.65 1.65 0 0 0 .33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9.09A1.65 1.65 0 0 0 10 3V3a2 2 0 0 1 2-1 2 2 0 0 1 2 1v.09a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1 .51l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V15z"></path>
                     </svg>
                 </button>
             </div>
@@ -350,6 +559,12 @@
             </div>
         </div>
 
+        <!-- Information Box (Clickable to open upcoming tasks modal) -->
+        <div id="info-box" class="themed-bg p-4 rounded-xl shadow-lg cursor-pointer">
+            <p id="info-box-content" class="font-semibold themed-text-secondary">Select a current day to view upcoming tasks.</p>
+            <button id="info-box-clear-selection" class="hidden mt-2 px-3 py-1 text-xs rounded-md bg-gray-600 hover:bg-gray-700 text-white transition-colors">Clear Selection</button>
+        </div>
+
         <div id="timetable" class="timetable-grid themed-bg p-2 rounded-xl"></div>
 
         <div id="weekly-goal-section" class="mt-8 themed-bg p-6 rounded-xl shadow-lg">
@@ -358,28 +573,58 @@
         </div>
     </div>
 
+    <!-- Task Modal (existing) -->
     <div id="task-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
             <h2 id="modal-title" class="text-2xl font-bold mb-6 themed-text">Add New Task</h2>
             <form id="task-form">
-                <input type="hidden" id="task-id"><input type="hidden" id="hidden-task-day"><input type="hidden" id="hidden-task-row">
-                <div class="mb-4">
-                    <label for="task-name" class="block text-sm font-medium themed-text-secondary mb-2">Task / Class Name</label>
-                    <textarea id="task-name" class="w-full themed-bg-tertiary themed-text px-4 py-2 rounded-lg border-2 themed-border themed-border-focus transition" rows="4" required></textarea>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium themed-text-secondary mb-2">Color Tag</label>
-                    <div id="color-picker" class="flex gap-3">
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-red-500" data-color="bg-red-500"></div>
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-blue-500" data-color="bg-blue-500"></div>
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-green-500" data-color="bg-green-500"></div>
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-yellow-500" data-color="bg-yellow-500"></div>
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-purple-500" data-color="bg-purple-500"></div>
-                        <div class="color-option w-8 h-8 rounded-full cursor-pointer bg-pink-500" data-color="bg-pink-500"></div>
+                <input type="hidden" id="task-id">
+                <input type="hidden" id="hidden-task-day">
+                <input type="hidden" id="hidden-task-row">
+                <input type="hidden" id="task-course-id">
+                <input type="hidden" id="task-class-id">
+
+                <div id="task-details-section">
+                    <div class="mb-4">
+                        <label for="task-name" class="block text-sm font-medium themed-text-secondary mb-2">Task / Class Name</label>
+                        <textarea id="task-name" class="w-full themed-bg-tertiary themed-text px-4 py-2 rounded-lg border-2 themed-border themed-border-focus transition" rows="2" required></textarea>
                     </div>
-                    <input type="hidden" id="task-color" value="bg-blue-500">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium themed-text-secondary mb-2">Color Tag</label>
+                        <div id="color-picker" class="flex flex-wrap gap-3">
+                            <!-- Colors will be dynamically added here -->
+                        </div>
+                        <input type="hidden" id="task-color" value="bg-blue-500">
+                    </div>
+
+                    <!-- New fields for class details -->
+                    <div id="class-specific-fields" class="space-y-4">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label for="class-start-time" class="block text-sm font-medium themed-text-secondary mb-2">Start Time</label>
+                                <input type="time" id="class-start-time" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition">
+                            </div>
+                            <div class="flex-1">
+                                <label for="class-end-time" class="block text-sm font-medium themed-text-secondary mb-2">End Time (Optional)</label>
+                                <input type="time" id="class-end-time" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="class-location-type" class="block text-sm font-medium themed-text-secondary mb-2">Location</label>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center themed-text-secondary">
+                                    <input type="radio" name="locationType" value="Online" class="mr-2 accent-indigo-600" checked> Online
+                                </label>
+                                <label class="flex items-center themed-text-secondary">
+                                    <input type="radio" name="locationType" value="In-person" class="mr-2 accent-indigo-600"> In-person
+                                </label>
+                            </div>
+                            <input type="text" id="class-venue" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition mt-2 hidden" placeholder="Venue (e.g., Building A, Room 101)">
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-end gap-4">
+
+                <div class="flex justify-end gap-4 mt-6">
                     <button type="button" id="delete-task-btn" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition hidden">Delete</button>
                     <button type="button" id="cancel-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Cancel</button>
                     <button type="submit" class="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Task</button>
@@ -388,6 +633,7 @@
         </div>
     </div>
     
+    <!-- Link Modal (existing) -->
     <div id="link-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
             <h2 id="link-modal-title" class="text-2xl font-bold mb-6 themed-text">Add New Link</h2>
@@ -410,6 +656,7 @@
         </div>
     </div>
 
+    <!-- Reset Modal (existing) -->
     <div id="reset-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8 text-center">
             <h2 class="text-2xl font-bold mb-6 themed-text">Reset Timetable Data</h2>
@@ -422,7 +669,7 @@
         </div>
     </div>
 
-    <!-- Background Options Modal -->
+    <!-- Background Options Modal (existing) -->
     <div id="background-options-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8 text-center">
             <h2 class="text-2xl font-bold mb-6 themed-text">Background Options</h2>
@@ -435,7 +682,7 @@
         </div>
     </div>
 
-    <!-- Animation Settings Modal -->
+    <!-- Animation Settings Modal (existing) -->
     <div id="animation-settings-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8 text-center">
             <h2 class="text-2xl font-bold mb-6 themed-text">Animation Settings</h2>
@@ -449,7 +696,7 @@
         </div>
     </div>
 
-    <!-- Course Modal -->
+    <!-- Course Modal (Now specifically for adding/editing course details) -->
     <div id="course-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
             <h2 id="course-modal-title" class="text-2xl font-bold mb-6 themed-text">Add New Course</h2>
@@ -474,12 +721,166 @@
                     </div>
                     <input type="hidden" id="course-color" value="bg-blue-500">
                 </div>
-                <div class="flex justify-end gap-4">
+
+                <div class="flex justify-end gap-4 mt-6">
                     <button type="button" id="delete-course-btn" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition hidden">Delete</button>
                     <button type="button" id="cancel-course-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Cancel</button>
                     <button type="submit" class="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Course</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- NEW Course Management Modal -->
+    <div id="course-management-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 id="course-management-title" class="text-2xl font-bold mb-4 themed-text">Manage Course: <span id="managed-course-name"></span></h2>
+            <p id="managed-course-color-display" class="text-sm themed-text-secondary mb-6"></p>
+
+            <div class="space-y-4 mb-6">
+                <button type="button" id="edit-course-details-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Edit Course Details</button>
+                
+                <div class="mt-4 pt-4 border-t border-gray-600">
+                    <h3 class="text-lg font-semibold themed-text mb-3">Classes</h3>
+                    <div id="managed-course-classes-list" class="mb-4 max-h-40 overflow-y-auto border border-gray-700 rounded-lg p-2">
+                        <!-- Classes for the managed course will be listed here -->
+                        <p class="themed-text-secondary text-sm">No classes added for this course.</p>
+                    </div>
+                    <button type="button" id="add-new-class-to-course-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition">Add New Class</button>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-gray-600 flex flex-col gap-2">
+                    <button type="button" id="manage-class-types-from-course-mgmt-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold transition">Manage Class Types</button>
+                    <button type="button" id="manage-venues-from-course-mgmt-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold transition">Manage Venues</button>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <button type="button" id="delete-course-from-mgmt-btn" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition">Delete Course</button>
+                <button type="button" id="close-course-management-modal-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- NEW Class Modal (for adding/editing individual classes within a course) -->
+    <div id="class-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 id="class-modal-title" class="text-2xl font-bold mb-6 themed-text">Add New Class</h2>
+            <form id="class-form">
+                <input type="hidden" id="class-id">
+                <input type="hidden" id="class-course-parent-id">
+
+                <div class="mb-4">
+                    <label for="class-name" class="block text-sm font-medium themed-text-secondary mb-2">Class Name</label>
+                    <input type="text" id="class-name" class="w-full themed-bg-tertiary themed-text px-4 py-2 rounded-lg border-2 themed-border themed-border-focus transition" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="class-type" class="block text-sm font-medium themed-text-secondary mb-2">Class Type</label>
+                    <select id="class-type" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition"></select>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <div class="flex-1">
+                        <label for="class-start-time-modal" class="block text-sm font-medium themed-text-secondary mb-2">Start Time</label>
+                        <input type="time" id="class-start-time-modal" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition">
+                    </div>
+                    <div class="flex-1">
+                        <label for="class-end-time-modal" class="block text-sm font-medium themed-text-secondary mb-2">End Time (Optional)</label>
+                        <input type="time" id="class-end-time-modal" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium themed-text-secondary mb-2">Location</label>
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center themed-text-secondary">
+                            <input type="radio" name="classLocationType" value="Online" class="mr-2 accent-indigo-600" checked> Online
+                        </label>
+                        <label class="flex items-center themed-text-secondary">
+                            <input type="radio" name="classLocationType" value="In-person" class="mr-2 accent-indigo-600"> In-person
+                        </label>
+                    </div>
+                    <input type="text" id="class-venue-modal" class="w-full themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition mt-2 hidden" placeholder="Venue (e.g., Building A, Room 101)">
+                </div>
+
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="delete-class-btn" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition hidden">Delete</button>
+                    <button type="button" id="cancel-class-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Class</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NEW Class Type Management Modal -->
+    <div id="class-type-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold mb-6 themed-text">Manage Class Types</h2>
+            <div id="class-types-list" class="mb-4 max-h-40 overflow-y-auto border border-gray-700 rounded-lg p-2">
+                <!-- Class types will be listed here -->
+            </div>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="new-class-type-name" class="flex-grow themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition" placeholder="New type name">
+                <button type="button" id="add-class-type-btn" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Add</button>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" id="close-class-type-modal-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW Venue Management Modal -->
+    <div id="venue-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold mb-6 themed-text">Manage Venues</h2>
+            <div id="venues-list" class="mb-4 max-h-40 overflow-y-auto border border-gray-700 rounded-lg p-2">
+                <!-- Venues will be listed here -->
+            </div>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="new-venue-name" class="flex-grow themed-bg-tertiary themed-text px-3 py-2 rounded-lg border-2 themed-border themed-border-focus transition" placeholder="New venue name">
+                <button type="button" id="add-venue-btn" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Add</button>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" id="close-venue-modal-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW Select Class/Custom Task Modal (appears when clicking + in Class row) -->
+    <div id="select-class-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold mb-6 themed-text">Add Class or Custom Task</h2>
+            
+            <div class="mb-4">
+                <button id="add-custom-task-btn" class="w-full px-4 py-2 text-sm rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition mb-4">Add Custom Task</button>
+            </div>
+
+            <h3 class="text-lg font-semibold themed-text mb-3">Select from My Courses:</h3>
+            <div id="select-course-list" class="max-h-60 overflow-y-auto mb-6 border border-gray-700 rounded-lg p-2">
+                <!-- Courses and their classes will be dynamically loaded here -->
+                <p class="themed-text-secondary text-sm">No courses with classes available.</p>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="button" id="cancel-select-class-modal-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- NEW Upcoming Tasks Details Modal -->
+    <div id="upcoming-tasks-details-modal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold mb-6 themed-text">All Upcoming Tasks</h2>
+            <div id="upcoming-tasks-modal-list" class="max-h-80 overflow-y-auto mb-6">
+                <!-- Upcoming tasks will be listed here dynamically -->
+                <p class="themed-text-secondary text-sm">No upcoming tasks to display.</p>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" id="close-upcoming-tasks-modal-btn" class="px-6 py-2 rounded-lg themed-bg-tertiary hover:bg-gray-500 themed-text font-semibold transition">Close</button>
+            </div>
         </div>
     </div>
 
@@ -524,24 +925,112 @@
             const toggleDeleteCourseBtn = document.getElementById('toggle-delete-course-btn'); 
             
             // Elements for blur functionality
-            const quickLinksSection = document.getElementById('quick-links-section');
-            const weeklyGoalSection = document.getElementById('weekly-goal-section');
             const blurSlider = document.getElementById('blur-slider');
-            const blurSliderContainer = document.querySelector('.blur-slider-container');
+
+            // Sidebar Elements
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+            const toggleUpcomingTasksBtn = document.getElementById('toggle-upcoming-tasks');
+            const upcomingTasksContent = document.getElementById('upcoming-tasks-content');
+            const upcomingTasksToggleIcon = document.getElementById('upcoming-tasks-toggle-icon');
+            const upcomingTaskNameInput = document.getElementById('upcoming-task-name');
+            const upcomingTaskTargetWeekInput = document.getElementById('upcoming-task-target-week');
+            const upcomingTaskTargetDaySelect = document.getElementById('upcoming-task-target-day');
+            const saveUpcomingTaskBtn = document.getElementById('save-upcoming-task-btn');
+            const upcomingTasksList = document.getElementById('upcoming-tasks-list');
+
+            // Info Box Elements
+            const infoBox = document.getElementById('info-box');
+            const infoBoxContent = document.getElementById('info-box-content');
+            const infoBoxClearSelectionBtn = document.getElementById('info-box-clear-selection');
+
+            // New Upcoming Tasks Details Modal Elements
+            const upcomingTasksDetailsModal = document.getElementById('upcoming-tasks-details-modal');
+            const upcomingTasksModalList = document.getElementById('upcoming-tasks-modal-list');
+            const closeUpcomingTasksModalBtn = document.getElementById('close-upcoming-tasks-modal-btn');
+
+            // New Class/Course related elements
+            const courseClassesManagement = document.getElementById('course-classes-management'); // This is now unused in course-modal
+            const courseClassesList = document.getElementById('course-classes-list'); // This is now unused in course-modal
+            const addClassBtn = document.getElementById('add-class-btn'); // This is now unused in course-modal
+            const manageClassTypesBtn = document.getElementById('manage-class-types-btn'); // This is now unused in course-modal
+            const manageVenuesBtn = document.getElementById('manage-venues-btn'); // This is now unused in course-modal
+
+            const classModal = document.getElementById('class-modal');
+            const classModalTitle = document.getElementById('class-modal-title');
+            const classForm = document.getElementById('class-form');
+            const classIdInput = document.getElementById('class-id');
+            const classCourseParentIdInput = document.getElementById('class-course-parent-id');
+            const classNameInput = document.getElementById('class-name');
+            const classTypeSelect = document.getElementById('class-type');
+            const classStartTimeModal = document.getElementById('class-start-time-modal');
+            const classEndTimeModal = document.getElementById('class-end-time-modal');
+            const classLocationTypeRadios = document.querySelectorAll('input[name="classLocationType"]');
+            const classVenueModal = document.getElementById('class-venue-modal');
+            const deleteClassBtn = document.getElementById('delete-class-btn');
+            const cancelClassBtn = document.getElementById('cancel-class-btn');
+
+            const classTypeModal = document.getElementById('class-type-modal');
+            const classTypesList = document.getElementById('class-types-list');
+            const newClassTypeNameInput = document.getElementById('new-class-type-name');
+            const addClassTypeBtn = document.getElementById('add-class-type-btn');
+            const closeClassTypeModalBtn = document.getElementById('close-class-type-modal-btn');
+
+            const venueModal = document.getElementById('venue-modal');
+            const venuesList = document.getElementById('venues-list');
+            const newVenueNameInput = document.getElementById('new-venue-name');
+            const addVenueBtn = document.getElementById('add-venue-btn');
+            const closeVenueModalBtn = document.getElementById('close-venue-modal-btn');
+
+            const selectClassModal = document.getElementById('select-class-modal');
+            const addCustomTaskBtn = document.getElementById('add-custom-task-btn');
+            const selectCourseList = document.getElementById('select-course-list');
+            const cancelSelectClassModalBtn = document.getElementById('cancel-select-class-modal-btn');
+
+            // Task Modal specific fields for class details
+            const classSpecificFields = document.getElementById('class-specific-fields');
+            const taskCourseIdInput = document.getElementById('task-course-id');
+            const taskClassIdInput = document.getElementById('task-class-id');
+            const taskStartTimeInput = document.getElementById('class-start-time');
+            const taskEndTimeInput = document.getElementById('class-end-time');
+            const taskLocationTypeRadios = document.querySelectorAll('input[name="locationType"]');
+            const taskVenueInput = document.getElementById('class-venue');
+
+            // New Course Management Modal elements
+            const courseManagementModal = document.getElementById('course-management-modal');
+            const managedCourseNameDisplay = document.getElementById('managed-course-name');
+            const managedCourseColorDisplay = document.getElementById('managed-course-color-display');
+            const editCourseDetailsBtn = document.getElementById('edit-course-details-btn');
+            const managedCourseClassesList = document.getElementById('managed-course-classes-list');
+            const addNewClassToCourseBtn = document.getElementById('add-new-class-to-course-btn');
+            const manageClassTypesFromCourseMgmtBtn = document.getElementById('manage-class-types-from-course-mgmt-btn');
+            const manageVenuesFromCourseMgmtBtn = document.getElementById('manage-venues-from-course-mgmt-btn');
+            const deleteCourseFromMgmtBtn = document.getElementById('delete-course-from-mgmt-btn');
+            const closeCourseManagementModalBtn = document.getElementById('close-course-management-modal-btn');
+            
+            let currentlyManagedCourseId = null; // Stores the ID of the course currently open in courseManagementModal
+
 
             // --- State Variables ---
             const days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             const rowLabels = ['Class', 'Prio 1', 'Prio 2', 'Prio 3', 'Prio 4', 'Done'];
             let currentWeek = 1;
-            let tasks = {}; // { 'week-day-row': [{id, name, color, completed, courseId}, ...] }
+            let tasks = {}; // { 'week-day-row': [{id, name, color, completed, courseId, classId, startTime, endTime, locationType, venue}, ...] }
             let links = []; // [{id, name, url}]
-            let courses = []; // [{id, name, color}]
+            let courses = []; // [{id, name, color, classes: [{id, name, type, startTime, endTime, locationType, venue}]}]
+            let upcomingTasks = []; // [{id, name, targetWeek, targetDay, color, type, startTime, endTime, location, courseId}]
             let activeCourseId = null; // ID of the currently selected course
             let activeCourseColor = 'bg-blue-500'; // Default color for tasks if no course selected
             let isLinkDeleteMode = false;
             let isCourseDeleteMode = false; 
             let weekDates = {}; // { 'weekNumber': 'YYYY-MM-DD' (date of Saturday for that week) }
             let animationLevel = 'normal'; // 'normal', 'reduced', 'none'
+            let selectedDay = { week: null, dayIndex: null }; // { week: currentWeek, dayIndex: 0-6 }
+            let displayedUpcomingTaskId = null; // Stores the ID of the upcoming task currently displayed in the info box
+            let classTypes = ['Lecture', 'Workshop', 'Tutorial', 'LAB']; // Default class types
+            let venues = []; // User-defined venues
+
 
             // --- Date Formatting Helper ---
             const formatDate = (date) => {
@@ -566,6 +1055,7 @@
                 const savedTasks = localStorage.getItem('timetableTasks_v2');
                 const savedLinks = localStorage.getItem('timetableLinks');
                 const savedCourses = localStorage.getItem('timetableCourses'); 
+                const savedUpcomingTasks = localStorage.getItem('upcomingTasks');
                 const savedActiveCourseId = localStorage.getItem('activeCourseId'); 
                 const savedActiveCourseColor = localStorage.getItem('activeCourseColor'); 
                 const savedWeek = localStorage.getItem('timetableWeek');
@@ -576,10 +1066,16 @@
                 const savedBlurAmount = localStorage.getItem('blurAmount');
                 const savedAnimationLevel = localStorage.getItem('animationLevel');
                 const savedIsCourseDeleteMode = localStorage.getItem('isCourseDeleteMode'); 
+                const savedSelectedDay = localStorage.getItem('selectedDay');
+                const savedDisplayedUpcomingTaskId = localStorage.getItem('displayedUpcomingTaskId');
+                const savedClassTypes = localStorage.getItem('classTypes');
+                const savedVenues = localStorage.getItem('venues');
+
 
                 if (savedTasks) tasks = JSON.parse(savedTasks);
                 if (savedLinks) links = JSON.parse(savedLinks);
                 if (savedCourses) courses = JSON.parse(savedCourses); 
+                if (savedUpcomingTasks) upcomingTasks = JSON.parse(savedUpcomingTasks);
                 if (savedActiveCourseId) activeCourseId = savedActiveCourseId; 
                 if (savedActiveCourseColor) activeCourseColor = savedActiveCourseColor; 
                 if (savedWeek) currentWeek = parseInt(savedWeek, 10);
@@ -587,6 +1083,10 @@
                 if (savedTheme) document.body.classList.toggle('light-mode', savedTheme === 'light');
                 if (savedWeekDates) weekDates = JSON.parse(savedWeekDates);
                 if (savedIsCourseDeleteMode) isCourseDeleteMode = JSON.parse(savedIsCourseDeleteMode); 
+                if (savedSelectedDay) selectedDay = JSON.parse(savedSelectedDay);
+                if (savedDisplayedUpcomingTaskId) displayedUpcomingTaskId = savedDisplayedUpcomingTaskId;
+                if (savedClassTypes) classTypes = JSON.parse(savedClassTypes);
+                if (savedVenues) venues = JSON.parse(savedVenues);
                 
                 // Apply saved background and blur
                 if (savedBackground) {
@@ -625,6 +1125,7 @@
                 localStorage.setItem('timetableTasks_v2', JSON.stringify(tasks));
                 localStorage.setItem('timetableLinks', JSON.stringify(links));
                 localStorage.setItem('timetableCourses', JSON.stringify(courses)); 
+                localStorage.setItem('upcomingTasks', JSON.stringify(upcomingTasks));
                 localStorage.setItem('activeCourseId', activeCourseId); 
                 localStorage.setItem('activeCourseColor', activeCourseColor); 
                 localStorage.setItem('timetableWeek', currentWeek);
@@ -633,6 +1134,10 @@
                 localStorage.setItem('timetableWeekDates', JSON.stringify(weekDates));
                 localStorage.setItem('animationLevel', animationLevel);
                 localStorage.setItem('isCourseDeleteMode', isCourseDeleteMode); 
+                localStorage.setItem('selectedDay', JSON.stringify(selectedDay));
+                localStorage.setItem('displayedUpcomingTaskId', displayedUpcomingTaskId); // Save displayed task ID
+                localStorage.setItem('classTypes', JSON.stringify(classTypes));
+                localStorage.setItem('venues', JSON.stringify(venues));
                 
                 const currentBackground = document.body.style.backgroundImage;
                 if (currentBackground && currentBackground.startsWith('url("data:image/')) {
@@ -674,6 +1179,20 @@
                     newSaturdayDate.setDate(saturdayDate.getDate() + (i * 7));
                     setSaturdayDateForWeek(targetWeek, newSaturdayDate);
                 }
+
+                // If the selected day's date changes, update it
+                if (selectedDay.week === currentWeek) {
+                    // Re-evaluate the selected day's date based on the new weekDates
+                    const currentSelectedWeekSaturday = getSaturdayDateForWeek(selectedDay.week);
+                    if (currentSelectedWeekSaturday) {
+                        const newSelectedDate = new Date(currentSelectedWeekSaturday);
+                        newSelectedDate.setDate(currentSelectedWeekSaturday.getDate() + selectedDay.dayIndex);
+                        selectedDay.date = newSelectedDate.toISOString().split('T')[0];
+                        saveState();
+                        renderInfoBoxContent(); // Update info box immediately
+                    }
+                }
+
                 renderTimetable();
             }
 
@@ -699,7 +1218,7 @@
 
                 days.forEach((dayName, dayIndex) => {
                     const headerCell = document.createElement('div');
-                    headerCell.className = 'text-center font-semibold themed-text-secondary py-3 day-header';
+                    headerCell.className = 'text-center font-semibold themed-text-secondary py-3 day-header flex flex-col items-center justify-center';
                     headerCell.dataset.dayIndex = dayIndex; // Store day index for event listener
 
                     const daySpan = document.createElement('span');
@@ -714,8 +1233,34 @@
                         dateDisplay.textContent = formatDate(dateForDay);
                         headerCell.appendChild(dateDisplay);
                     }
+
+                    // Current Day Checkbox
+                    const checkbox = document.createElement('div');
+                    checkbox.className = `current-day-checkbox mt-2 ${selectedDay.week === currentWeek && selectedDay.dayIndex === dayIndex ? 'checked' : ''}`;
+                    checkbox.addEventListener('click', () => {
+                        // Uncheck previous selected day in local storage if exists
+                        if (selectedDay.week !== null && selectedDay.dayIndex !== null) {
+                            const prevCheckbox = document.querySelector(`.current-day-checkbox.checked`);
+                            if (prevCheckbox) {
+                                prevCheckbox.classList.remove('checked');
+                            }
+                        }
+                        
+                        // Set new selected day
+                        selectedDay = { week: currentWeek, dayIndex: dayIndex };
+                        checkbox.classList.add('checked');
+                        displayedUpcomingTaskId = null; // Clear any explicitly selected upcoming task when a new day is chosen
+                        saveState();
+                        renderInfoBoxContent(); // Update info box immediately
+                    });
+                    headerCell.appendChild(checkbox);
                     
-                    headerCell.addEventListener('click', () => {
+                    headerCell.addEventListener('click', (e) => {
+                        // Prevent date prompt if clicking the checkbox
+                        if (e.target.classList.contains('current-day-checkbox')) {
+                            return;
+                        }
+
                         let newDate;
                         let validDate = false;
                         while(!validDate) {
@@ -759,7 +1304,13 @@
                         const addButton = document.createElement('button');
                         addButton.className = 'add-btn mt-auto p-2 rounded-full themed-bg-tertiary hover:bg-indigo-600 text-white transition-all';
                         addButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
-                        addButton.onclick = () => openTaskModal(j, i);
+                        addButton.onclick = () => {
+                            if (i === 0) { // If "Class" row
+                                openSelectClassModal(j, i);
+                            } else {
+                                openTaskModal(j, i); // For other rows, open directly
+                            }
+                        };
                         cell.appendChild(addButton);
                         timetable.appendChild(cell);
                     }
@@ -775,6 +1326,26 @@
                 const taskName = document.createElement('p');
                 taskName.className = 'font-semibold text-sm break-words whitespace-pre-wrap';
                 taskName.textContent = task.name;
+
+                // Add class details if available
+                if (task.startTime || task.locationType) {
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'class-details';
+                    let detailsText = '';
+                    if (task.startTime) {
+                        detailsText += task.startTime;
+                        if (task.endTime) detailsText += ` - ${task.endTime}`;
+                    }
+                    if (task.locationType) {
+                        if (detailsText) detailsText += ' | ';
+                        detailsText += task.locationType;
+                        if (task.locationType === 'In-person' && task.venue) {
+                            detailsText += `: ${task.venue}`;
+                        }
+                    }
+                    detailsDiv.textContent = detailsText;
+                    card.appendChild(detailsDiv);
+                }
 
                 const cardFooter = document.createElement('div');
                 cardFooter.className = 'flex items-center justify-between mt-2';
@@ -861,13 +1432,11 @@
                         };
                     } else {
                         courseCard.onclick = (e) => {
-                            // Allow Ctrl/Cmd click to edit course
-                            if (e.ctrlKey || e.metaKey) {
-                                e.preventDefault();
-                                openCourseModal(course);
-                            } else {
-                                selectCourse(course.id, course.color);
-                            }
+                            e.preventDefault(); // Prevent default link behavior if any
+                            // Select the course as active
+                            selectCourse(course.id, course.color);
+                            // Open the new course management modal
+                            openCourseManagementModal(course);
                         };
                     }
                     container.appendChild(courseCard);
@@ -895,6 +1464,196 @@
                 // Removed showMessageBox
             }
 
+            // Render Upcoming Tasks in Sidebar
+            function renderUpcomingTasks() {
+                upcomingTasksList.innerHTML = '';
+                if (upcomingTasks.length === 0) {
+                    upcomingTasksList.innerHTML = `<p class="themed-text-secondary text-sm">No upcoming tasks added.</p>`;
+                } else {
+                    upcomingTasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = `p-2 mb-2 rounded-md ${task.color} text-white text-sm flex flex-col`; // Changed to flex-col
+                        taskItem.innerHTML = `
+                            <div class="flex justify-between items-center w-full">
+                                <span class="font-semibold">${task.name}</span>
+                                <button class="delete-upcoming-task-btn p-1 rounded-full bg-red-700 hover:bg-red-800 transition-colors" data-task-id="${task.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                            </div>
+                            <span class="text-xs mt-1 self-start">Week ${task.targetWeek}, ${days[task.targetDay]}</span>
+                        `; // Added week and day display
+                        upcomingTasksList.appendChild(taskItem);
+                    });
+                    // Add event listeners for delete buttons
+                    upcomingTasksList.querySelectorAll('.delete-upcoming-task-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const taskId = e.currentTarget.dataset.taskId;
+                            deleteUpcomingTask(taskId);
+                        });
+                    });
+                }
+            }
+
+            function deleteUpcomingTask(id) {
+                upcomingTasks = upcomingTasks.filter(task => task.id !== id);
+                // If the deleted task was the one being displayed in the info box, clear the selection
+                if (displayedUpcomingTaskId === id) {
+                    displayedUpcomingTaskId = null;
+                }
+                renderUpcomingTasks();
+                renderInfoBoxContent(); // Update info box as well
+                saveState();
+            }
+
+            // Calculate Days/Weeks Left for Upcoming Tasks
+            function calculateDaysWeeksLeft(targetWeek, targetDayIndex) {
+                if (selectedDay.week === null || selectedDay.dayIndex === null) {
+                    return "Select current day to calculate";
+                }
+
+                const currentWeekSaturday = getSaturdayDateForWeek(selectedDay.week);
+                const targetWeekSaturday = getSaturdayDateForWeek(targetWeek);
+
+                if (!currentWeekSaturday) {
+                    return `Current week (${selectedDay.week}) date not set.`;
+                }
+                if (!targetWeekSaturday) {
+                    return `Target week (${targetWeek}) date not set.`;
+                }
+
+                const currentSelectedDate = new Date(currentWeekSaturday);
+                currentSelectedDate.setDate(currentWeekSaturday.getDate() + selectedDay.dayIndex);
+                currentSelectedDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+                const targetDate = new Date(targetWeekSaturday);
+                targetDate.setDate(targetWeekSaturday.getDate() + targetDayIndex);
+                targetDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+                const diffTime = targetDate.getTime() - currentSelectedDate.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) {
+                    return "Passed";
+                } else if (diffDays === 0) {
+                    return "Today!";
+                } else if (diffDays < 7) {
+                    return `${diffDays} day${diffDays === 1 ? '' : 's'} left`;
+                } else {
+                    const weeks = Math.floor(diffDays / 7);
+                    const daysRemainder = diffDays % 7;
+                    return `${weeks} week${weeks === 1 ? '' : 's'}${daysRemainder > 0 ? ` and ${daysRemainder} day${daysRemainder === 1 ? '' : 's'}` : ''} left`;
+                }
+            }
+
+            // Render Info Box Content
+            function renderInfoBoxContent() {
+                let taskToDisplay = null;
+
+                if (displayedUpcomingTaskId) {
+                    taskToDisplay = upcomingTasks.find(task => task.id === displayedUpcomingTaskId);
+                }
+
+                if (!taskToDisplay) {
+                    // If no specific task is selected, or the selected one was deleted, find the next relevant task
+                    if (selectedDay.week === null || selectedDay.dayIndex === null) {
+                        infoBoxContent.innerHTML = `<p class="font-semibold themed-text-secondary">Select a current day to view upcoming tasks.</p>`;
+                        infoBoxClearSelectionBtn.classList.add('hidden');
+                        return;
+                    }
+
+                    const currentWeekSaturday = getSaturdayDateForWeek(selectedDay.week);
+                    if (!currentWeekSaturday) {
+                        infoBoxContent.innerHTML = `<p class="font-semibold themed-text-secondary">Error: Current week's date not set. Please set a date for the current day.</p>`;
+                        infoBoxClearSelectionBtn.classList.add('hidden');
+                        return;
+                    }
+
+                    const currentSelectedDateObj = new Date(currentWeekSaturday);
+                    currentSelectedDateObj.setDate(currentWeekSaturday.getDate() + selectedDay.dayIndex);
+                    currentSelectedDateObj.setHours(0, 0, 0, 0);
+
+                    const relevantTasks = upcomingTasks
+                        .filter(task => {
+                            const taskWeekSaturday = getSaturdayDateForWeek(task.targetWeek);
+                            if (!taskWeekSaturday) return false;
+
+                            const taskDate = new Date(taskWeekSaturday);
+                            taskDate.setDate(taskDate.getDate() + task.targetDay);
+                            taskDate.setHours(0, 0, 0, 0);
+                            return taskDate.getTime() >= currentSelectedDateObj.getTime();
+                        })
+                        .sort((a, b) => {
+                            const dateA = new Date(getSaturdayDateForWeek(a.targetWeek));
+                            dateA.setDate(dateA.getDate() + a.targetDay);
+                            dateA.setHours(0, 0, 0, 0);
+
+                            const dateB = new Date(getSaturdayDateForWeek(b.targetWeek));
+                            dateB.setDate(dateB.getDate() + b.targetDay);
+                            dateB.setHours(0, 0, 0, 0);
+
+                            return dateA.getTime() - dateB.getTime();
+                        });
+                    
+                    if (relevantTasks.length > 0) {
+                        taskToDisplay = relevantTasks[0];
+                        displayedUpcomingTaskId = null; // Ensure it's not set to a specific task ID when showing 'next'
+                    }
+                }
+
+                if (taskToDisplay) {
+                    const daysWeeksLeft = calculateDaysWeeksLeft(taskToDisplay.targetWeek, taskToDisplay.targetDay);
+                    infoBoxContent.innerHTML = `
+                        <p class="font-semibold themed-text-secondary">${taskToDisplay.name}</p>
+                        <p class="text-xs themed-text-secondary">Due: Week ${taskToDisplay.targetWeek}, ${days[taskToDisplay.targetDay]} (${daysWeeksLeft})</p>
+                    `;
+                    infoBoxClearSelectionBtn.classList.toggle('hidden', displayedUpcomingTaskId === null); // Show only if a specific task is selected
+                } else {
+                    infoBoxContent.innerHTML = `<p class="font-semibold themed-text-secondary">No upcoming tasks for the selected day or later.</p>`;
+                    infoBoxClearSelectionBtn.classList.add('hidden');
+                }
+                saveState(); // Save the state of displayedUpcomingTaskId
+            }
+
+            // Function to open the new modal listing all upcoming tasks
+            function openUpcomingTasksDetailsModal() {
+                upcomingTasksModalList.innerHTML = ''; // Clear previous list
+
+                if (upcomingTasks.length === 0) {
+                    upcomingTasksModalList.innerHTML = `<p class="themed-text-secondary text-sm">No upcoming tasks added yet. Add some via the sidebar.</p>`;
+                } else {
+                    upcomingTasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = `upcoming-task-item-modal ${task.color} text-white`;
+                        taskItem.dataset.taskId = task.id;
+                        taskItem.innerHTML = `
+                            <div>
+                                <p class="task-name">${task.name}</p>
+                                <p class="task-due">Week ${task.targetWeek}, ${days[task.targetDay]}</p>
+                            </div>
+                            <button class="delete-btn-modal" data-task-id="${task.id}">Delete</button>
+                        `;
+                        // Click listener for selecting a task to display in the info box
+                        taskItem.addEventListener('click', (e) => {
+                            // Prevent selecting the task if the delete button was clicked
+                            if (e.target.classList.contains('delete-btn-modal')) {
+                                return;
+                            }
+                            displayedUpcomingTaskId = task.id;
+                            renderInfoBoxContent();
+                            closeModal(upcomingTasksDetailsModal);
+                        });
+                        // Click listener for deleting directly from the modal list
+                        taskItem.querySelector('.delete-btn-modal').addEventListener('click', (e) => {
+                            e.stopPropagation(); // Prevent the parent taskItem click from firing
+                            deleteUpcomingTask(task.id);
+                            // Re-render the modal list after deletion
+                            openUpcomingTasksDetailsModal(); // Re-open to show updated list
+                        });
+                        upcomingTasksModalList.appendChild(taskItem);
+                    });
+                }
+                openModal(upcomingTasksDetailsModal);
+            }
 
             // --- Modal Logic ---
             function openTaskModal(day, row, task = null) {
@@ -907,15 +1666,66 @@
                 document.getElementById('hidden-task-day').value = day;
                 document.getElementById('hidden-task-row').value = row;
                 
+                // Dynamically populate task color picker with all available colors
+                const taskColorPicker = document.getElementById('color-picker');
+                taskColorPicker.innerHTML = ''; // Clear existing options
+                const allColors = [
+                    'bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500',
+                    'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-orange-500'
+                ];
+                allColors.forEach(colorClass => {
+                    const div = document.createElement('div');
+                    div.className = `color-option w-8 h-8 rounded-full cursor-pointer ${colorClass}`;
+                    div.dataset.color = colorClass;
+                    taskColorPicker.appendChild(div);
+                });
+
                 document.querySelectorAll('#color-picker .color-option').forEach(el => el.style.border = '2px solid transparent');
                 const taskColorInput = document.getElementById('task-color');
                 
+                // Show/hide class-specific fields based on row
+                if (row === 0) { // 'Class' row
+                    classSpecificFields.classList.remove('hidden');
+                    taskLocationTypeRadios.forEach(radio => {
+                        radio.addEventListener('change', () => {
+                            taskVenueInput.classList.toggle('hidden', radio.value !== 'In-person');
+                        });
+                    });
+                } else {
+                    classSpecificFields.classList.add('hidden');
+                }
+
+
                 if (task) {
                     document.getElementById('task-id').value = task.id;
                     document.getElementById('task-name').value = task.name;
                     taskColorInput.value = task.color;
+                    taskCourseIdInput.value = task.courseId || '';
+                    taskClassIdInput.value = task.classId || '';
+                    taskStartTimeInput.value = task.startTime || '';
+                    taskEndTimeInput.value = task.endTime || '';
+                    
+                    // Set location type radio and venue input
+                    if (task.locationType) {
+                        document.querySelector(`input[name="locationType"][value="${task.locationType}"]`).checked = true;
+                        taskVenueInput.classList.toggle('hidden', task.locationType !== 'In-person');
+                        taskVenueInput.value = task.venue || '';
+                    } else {
+                        document.querySelector(`input[name="locationType"][value="Online"]`).checked = true;
+                        taskVenueInput.classList.add('hidden');
+                        taskVenueInput.value = '';
+                    }
+
                 } else {
                     document.getElementById('task-id').value = '';
+                    taskCourseIdInput.value = '';
+                    taskClassIdInput.value = '';
+                    taskStartTimeInput.value = '';
+                    taskEndTimeInput.value = '';
+                    document.querySelector(`input[name="locationType"][value="Online"]`).checked = true;
+                    taskVenueInput.classList.add('hidden');
+                    taskVenueInput.value = '';
+
                     // Pre-fill color if a course is active, otherwise default
                     taskColorInput.value = activeCourseColor; 
                 }
@@ -939,16 +1749,19 @@
                 }
             }
 
-            // Open Course Modal
+            // Open Course Modal (Now only for adding/editing course details, not classes)
             function openCourseModal(course = null) {
                 openModal(courseModal);
                 const form = document.getElementById('course-form');
                 form.reset();
                 document.getElementById('delete-course-btn').classList.toggle('hidden', !course);
-                document.getElementById('course-modal-title').textContent = course ? 'Edit Course' : 'Add New Course';
+                document.getElementById('course-modal-title').textContent = course ? 'Edit Course Details' : 'Add New Course';
 
                 document.querySelectorAll('#course-color-picker .color-option').forEach(el => el.style.border = '2px solid transparent');
                 const courseColorInput = document.getElementById('course-color');
+
+                // Hide classes management section in this modal
+                // courseClassesManagement.classList.add('hidden'); // This element is now removed from HTML
 
                 if (course) {
                     document.getElementById('course-id').value = course.id;
@@ -962,6 +1775,263 @@
                 if (selectedColorEl) selectedColorEl.style.border = '2px solid white';
             }
 
+            // NEW: Open Course Management Modal
+            function openCourseManagementModal(course) {
+                currentlyManagedCourseId = course.id;
+                openModal(courseManagementModal);
+                managedCourseNameDisplay.textContent = course.name;
+                managedCourseColorDisplay.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary-color'); // Reset to default background
+                managedCourseColorDisplay.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-primary-color'); // Reset text color
+                managedCourseColorDisplay.textContent = `Color: ${course.color.replace('bg-', '')}`; // Display color name
+                managedCourseColorDisplay.classList.add(course.color); // Add the actual color class for visual
+
+                renderManagedCourseClasses(course.id);
+            }
+
+            // Render classes within the NEW course management modal
+            function renderManagedCourseClasses(courseId) {
+                const course = courses.find(c => c.id === courseId);
+                managedCourseClassesList.innerHTML = '';
+                if (!course || !course.classes || course.classes.length === 0) {
+                    managedCourseClassesList.innerHTML = `<p class="themed-text-secondary text-sm">No classes added for this course.</p>`;
+                    return;
+                }
+
+                course.classes.forEach(cls => {
+                    const classItem = document.createElement('div');
+                    classItem.className = `p-2 mb-2 rounded-md themed-bg-tertiary themed-text text-sm flex justify-between items-center cursor-pointer hover:bg-gray-600 transition`;
+                    classItem.innerHTML = `
+                        <div>
+                            <p class="font-semibold">${cls.name} (${cls.type || 'N/A'})</p>
+                            <p class="text-xs themed-text-secondary">
+                                ${cls.startTime ? cls.startTime + (cls.endTime ? ` - ${cls.endTime}` : '') : ''}
+                                ${cls.locationType ? (cls.startTime ? ' | ' : '') + cls.locationType : ''}
+                                ${cls.locationType === 'In-person' && cls.venue ? `: ${cls.venue}` : ''}
+                            </p>
+                        </div>
+                        <button class="delete-class-from-course-btn p-1 rounded-full bg-red-700 hover:bg-red-800 transition-colors" data-class-id="${cls.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    `;
+                    classItem.addEventListener('click', () => openClassModal(courseId, cls));
+                    classItem.querySelector('.delete-class-from-course-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteClass(courseId, cls.id);
+                    });
+                    managedCourseClassesList.appendChild(classItem);
+                });
+            }
+
+            // Open Class Modal
+            function openClassModal(courseId, classObj = null) {
+                openModal(classModal);
+                classForm.reset();
+                classIdInput.value = '';
+                classCourseParentIdInput.value = courseId;
+                deleteClassBtn.classList.toggle('hidden', !classObj);
+                classModalTitle.textContent = classObj ? 'Edit Class' : 'Add New Class';
+
+                renderClassTypesSelect(); // Populate class types dropdown
+                
+                // Set up location type radio listener
+                classLocationTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        classVenueModal.classList.toggle('hidden', radio.value !== 'In-person');
+                    });
+                });
+
+                if (classObj) {
+                    classIdInput.value = classObj.id;
+                    classNameInput.value = classObj.name;
+                    classTypeSelect.value = classObj.type || classTypes[0];
+                    classStartTimeModal.value = classObj.startTime || '';
+                    classEndTimeModal.value = classObj.endTime || '';
+                    
+                    // Set location type radio and venue input
+                    if (classObj.locationType) {
+                        document.querySelector(`input[name="classLocationType"][value="${classObj.locationType}"]`).checked = true;
+                        classVenueModal.classList.toggle('hidden', classObj.locationType !== 'In-person');
+                        classVenueModal.value = classObj.venue || '';
+                    } else {
+                        document.querySelector(`input[name="classLocationType"][value="Online"]`).checked = true;
+                        classVenueModal.classList.add('hidden');
+                        classVenueModal.value = '';
+                    }
+
+                } else {
+                    // Default for new class
+                    classTypeSelect.value = classTypes[0];
+                    document.querySelector(`input[name="classLocationType"][value="Online"]`).checked = true;
+                    classVenueModal.classList.add('hidden');
+                    classVenueModal.value = '';
+                }
+            }
+
+            // Render Class Types in Select
+            function renderClassTypesSelect() {
+                classTypeSelect.innerHTML = '';
+                classTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    classTypeSelect.appendChild(option);
+                });
+            }
+
+            // Save Class
+            function saveClass(e) {
+                e.preventDefault();
+                const courseId = classCourseParentIdInput.value;
+                const id = classIdInput.value || `class-${Date.now()}`;
+                const name = classNameInput.value.trim();
+                const type = classTypeSelect.value;
+                const startTime = classStartTimeModal.value;
+                const endTime = classEndTimeModal.value;
+                const locationType = document.querySelector('input[name="classLocationType"]:checked').value;
+                const venue = classVenueModal.value.trim();
+
+                if (!name) {
+                    showMessageBox('Class name cannot be empty.');
+                    return;
+                }
+
+                const course = courses.find(c => c.id === courseId);
+                if (!course) {
+                    showMessageBox('Error: Parent course not found.');
+                    return;
+                }
+
+                if (!course.classes) {
+                    course.classes = [];
+                }
+
+                const newClass = { id, name, type, startTime, endTime, locationType, venue };
+                const existingClassIndex = course.classes.findIndex(cls => cls.id === id);
+
+                if (existingClassIndex > -1) {
+                    course.classes[existingClassIndex] = newClass;
+                } else {
+                    course.classes.push(newClass);
+                }
+                
+                closeModal(classModal);
+                renderManagedCourseClasses(courseId); // Re-render classes list in course management modal
+                saveState();
+            }
+
+            // Delete Class
+            function deleteClass(courseId, classId) {
+                showMessageBox("Are you sure you want to delete this class? This will also remove all instances of this class from your timetable. Click OK to confirm.");
+                document.getElementById('messageBox').querySelector('button').onclick = () => {
+                    hideMessageBox();
+                    const course = courses.find(c => c.id === courseId);
+                    if (course) {
+                        course.classes = course.classes.filter(cls => cls.id !== classId);
+                        // Remove all tasks in the timetable that were instances of this class
+                        Object.keys(tasks).forEach(key => {
+                            tasks[key] = tasks[key].filter(task => !(task.courseId === courseId && task.classId === classId));
+                        });
+                        renderManagedCourseClasses(courseId); // Re-render classes list in course management modal
+                        renderTimetable(); // Re-render timetable to reflect deleted tasks
+                        saveState();
+                    }
+                    closeModal(classModal); // Close class modal if open
+                };
+            }
+
+            // Manage Class Types
+            function openClassTypeModal() {
+                openModal(classTypeModal);
+                renderClassTypesList();
+            }
+
+            function renderClassTypesList() {
+                classTypesList.innerHTML = '';
+                if (classTypes.length === 0) {
+                    classTypesList.innerHTML = `<p class="themed-text-secondary text-sm">No custom types added.</p>`;
+                    return;
+                }
+                classTypes.forEach(type => {
+                    const typeItem = document.createElement('div');
+                    typeItem.className = 'flex justify-between items-center p-2 mb-1 rounded-md themed-bg-tertiary themed-text text-sm';
+                    typeItem.innerHTML = `
+                        <span>${type}</span>
+                        <button class="delete-custom-type-btn p-1 rounded-full bg-red-700 hover:bg-red-800 transition-colors" data-type="${type}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    `;
+                    typeItem.querySelector('.delete-custom-type-btn').addEventListener('click', (e) => {
+                        deleteClassType(e.currentTarget.dataset.type);
+                    });
+                    classTypesList.appendChild(typeItem);
+                });
+            }
+
+            function addClassType() {
+                const newType = newClassTypeNameInput.value.trim();
+                if (newType && !classTypes.includes(newType)) {
+                    classTypes.push(newType);
+                    newClassTypeNameInput.value = '';
+                    renderClassTypesList();
+                    saveState();
+                    renderClassTypesSelect(); // Update dropdowns
+                } else if (classTypes.includes(newType)) {
+                    showMessageBox('This class type already exists.');
+                }
+            }
+
+            function deleteClassType(typeToDelete) {
+                classTypes = classTypes.filter(type => type !== typeToDelete);
+                renderClassTypesList();
+                saveState();
+                renderClassTypesSelect(); // Update dropdowns
+            }
+
+            // Manage Venues
+            function openVenueModal() {
+                openModal(venueModal);
+                renderVenuesList();
+            }
+
+            function renderVenuesList() {
+                venuesList.innerHTML = '';
+                if (venues.length === 0) {
+                    venuesList.innerHTML = `<p class="themed-text-secondary text-sm">No custom venues added.</p>`;
+                    return;
+                }
+                venues.forEach(venue => {
+                    const venueItem = document.createElement('div');
+                    venueItem.className = 'flex justify-between items-center p-2 mb-1 rounded-md themed-bg-tertiary themed-text text-sm';
+                    venueItem.innerHTML = `
+                        <span>${venue}</span>
+                        <button class="delete-custom-venue-btn p-1 rounded-full bg-red-700 hover:bg-red-800 transition-colors" data-venue="${venue}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    `;
+                    venueItem.querySelector('.delete-custom-venue-btn').addEventListener('click', (e) => {
+                        deleteVenue(e.currentTarget.dataset.venue);
+                    });
+                    venuesList.appendChild(venueItem);
+                });
+            }
+
+            function addVenue() {
+                const newVenue = newVenueNameInput.value.trim();
+                if (newVenue && !venues.includes(newVenue)) {
+                    venues.push(newVenue);
+                    newVenueNameInput.value = '';
+                    renderVenuesList();
+                    saveState();
+                } else if (venues.includes(newVenue)) {
+                    showMessageBox('This venue already exists.');
+                }
+            }
+
+            function deleteVenue(venueToDelete) {
+                venues = venues.filter(venue => venue !== venueToDelete);
+                renderVenuesList();
+                saveState();
+            }
 
             function openModal(modal) {
                 modal.classList.remove('hidden');
@@ -981,6 +2051,54 @@
             document.getElementById('task-form').addEventListener('submit', handleTaskFormSubmit);
             document.getElementById('link-form').addEventListener('submit', handleLinkFormSubmit);
             document.getElementById('course-form').addEventListener('submit', handleCourseFormSubmit); 
+            saveUpcomingTaskBtn.addEventListener('click', handleSaveUpcomingTask);
+            classForm.addEventListener('submit', saveClass); // New event listener for class form
+
+            // Event listeners for new modals
+            // These buttons are now in course-management-modal
+            // addClassBtn.addEventListener('click', () => {
+            //     const courseId = document.getElementById('course-id').value;
+            //     openClassModal(courseId);
+            // });
+            // manageClassTypesBtn.addEventListener('click', openClassTypeModal);
+            // manageVenuesBtn.addEventListener('click', openVenueModal);
+
+            addClassTypeBtn.addEventListener('click', addClassType);
+            addVenueBtn.addEventListener('click', addVenue);
+            closeClassTypeModalBtn.addEventListener('click', () => closeModal(classTypeModal));
+            closeVenueModalBtn.addEventListener('click', () => closeModal(venueModal));
+            cancelClassBtn.addEventListener('click', () => closeModal(classModal));
+            addCustomTaskBtn.addEventListener('click', () => {
+                closeModal(selectClassModal);
+                openTaskModal(selectClassModal.dataset.day, selectClassModal.dataset.row); // Open task modal for custom task
+            });
+            cancelSelectClassModalBtn.addEventListener('click', () => closeModal(selectClassModal));
+
+            // Course Management Modal Event Listeners
+            editCourseDetailsBtn.addEventListener('click', () => {
+                const course = courses.find(c => c.id === currentlyManagedCourseId);
+                if (course) {
+                    closeModal(courseManagementModal);
+                    openCourseModal(course); // Open the original course modal for editing details
+                }
+            });
+
+            addNewClassToCourseBtn.addEventListener('click', () => {
+                openClassModal(currentlyManagedCourseId); // Open class modal for the currently managed course
+            });
+
+            manageClassTypesFromCourseMgmtBtn.addEventListener('click', openClassTypeModal);
+            manageVenuesFromCourseMgmtBtn.addEventListener('click', openVenueModal);
+
+            deleteCourseFromMgmtBtn.addEventListener('click', () => {
+                deleteCourse(currentlyManagedCourseId);
+                closeModal(courseManagementModal); // Close the management modal after deletion
+            });
+
+            closeCourseManagementModalBtn.addEventListener('click', () => {
+                closeModal(courseManagementModal);
+            });
+
 
             function handleTaskFormSubmit(e) {
                 e.preventDefault();
@@ -991,14 +2109,37 @@
                 const row = document.getElementById('hidden-task-row').value;
                 const taskKey = `${currentWeek}-${day}-${row}`;
 
+                // Class-specific fields
+                const courseId = taskCourseIdInput.value || null;
+                const classId = taskClassIdInput.value || null;
+                const startTime = taskStartTimeInput.value || '';
+                const endTime = taskEndTimeInput.value || '';
+                const locationType = document.querySelector('input[name="locationType"]:checked').value;
+                const venue = taskVenueInput.value || '';
+
                 if (!tasks[taskKey]) tasks[taskKey] = [];
                 
                 const taskIndex = tasks[taskKey].findIndex(t => t.id === id);
 
+                const newTask = { 
+                    id: id || `task-${Date.now()}`, 
+                    name, 
+                    color, 
+                    day, 
+                    row, 
+                    completed: false, 
+                    courseId, 
+                    classId, 
+                    startTime, 
+                    endTime, 
+                    locationType, 
+                    venue 
+                };
+
                 if (taskIndex > -1) { // Editing
-                    tasks[taskKey][taskIndex] = { ...tasks[taskKey][taskIndex], name, color };
+                    tasks[taskKey][taskIndex] = { ...tasks[taskKey][taskIndex], ...newTask }; // Merge new data
                 } else { // Adding
-                    tasks[taskKey].push({ id: `task-${Date.now()}`, name, color, day, row, completed: false, courseId: activeCourseId }); // Store courseId
+                    tasks[taskKey].push(newTask);
                 }
                 
                 closeModal(taskModal);
@@ -1029,7 +2170,7 @@
                 saveState();
             }
 
-            // Handle Course Form Submit
+            // Handle Course Form Submit (for adding/editing course name/color)
             function handleCourseFormSubmit(e) {
                 e.preventDefault();
                 const id = document.getElementById('course-id').value;
@@ -1038,26 +2179,74 @@
 
                 const courseIndex = courses.findIndex(c => c.id === id);
 
-                if (courseIndex > -1) { // Editing
-                    courses[courseIndex] = { id, name, color };
+                if (courseIndex > -1) { // Editing existing course details
+                    courses[courseIndex].name = name;
+                    courses[courseIndex].color = color;
                     // If the edited course was active, update active color
                     if (activeCourseId === id) {
                         activeCourseColor = color;
                     }
-                } else { // Adding
-                    courses.push({ id: `course-${Date.now()}`, name, color });
+                    closeModal(courseModal); // Close the course details modal
+                    // Re-open course management modal to show updated details
+                    const updatedCourse = courses.find(c => c.id === id);
+                    if (updatedCourse) {
+                        openCourseManagementModal(updatedCourse);
+                    }
+                } else { // Adding new course
+                    const newCourse = { id: `course-${Date.now()}`, name, color, classes: [] };
+                    courses.push(newCourse);
+                    closeModal(courseModal); // Close the add new course modal
+                    openCourseManagementModal(newCourse); // Open management for the new course
                 }
                 
-                closeModal(courseModal);
-                renderCourses();
+                renderCourses(); // Re-render course cards
                 saveState();
+            }
+
+            function handleSaveUpcomingTask() {
+                const name = upcomingTaskNameInput.value.trim();
+                const targetWeek = parseInt(upcomingTaskTargetWeekInput.value, 10);
+                const targetDay = parseInt(upcomingTaskTargetDaySelect.value, 10);
+
+                if (!name) {
+                    showMessageBox("Please enter a task name for the upcoming task.");
+                    return;
+                }
+                if (isNaN(targetWeek) || targetWeek < 1) {
+                    showMessageBox("Please enter a valid target week for the upcoming task.");
+                    return;
+                }
+
+                const newUpcomingTask = {
+                    id: `upcoming-task-${Date.now()}`,
+                    name,
+                    targetWeek,
+                    targetDay,
+                    color: 'bg-blue-500', // Default color for upcoming tasks for now
+                    type: 'Class', // Upcoming tasks always go to 'Class' row
+                    startTime: '',
+                    endTime: '',
+                    location: ''
+                };
+                upcomingTasks.push(newUpcomingTask);
+                upcomingTaskNameInput.value = ''; // Clear input
+                upcomingTaskTargetWeekInput.value = currentWeek; // Reset to current week
+                upcomingTaskTargetDaySelect.value = '0'; // Reset to Saturday
+                renderUpcomingTasks();
+                renderInfoBoxContent(); // Update info box
+                saveState();
+                showMessageBox('Upcoming task saved!');
             }
             
             document.getElementById('delete-task-btn').onclick = () => {
                 const id = document.getElementById('task-id').value;
-                Object.keys(tasks).forEach(key => {
-                    tasks[key] = tasks[key].filter(t => t.id !== id);
-                });
+                const day = document.getElementById('hidden-task-day').value;
+                const row = document.getElementById('hidden-task-row').value;
+                const taskKey = `${currentWeek}-${day}-${row}`;
+
+                if (tasks[taskKey]) {
+                    tasks[taskKey] = tasks[taskKey].filter(t => t.id !== id);
+                }
                 closeModal(taskModal);
                 renderTimetable();
                 saveState();
@@ -1071,11 +2260,12 @@
                 saveState();
             };
 
-            // Delete Course
+            // This delete course button is for the `course-modal` (add/edit course details)
+            // It will be hidden unless editing an existing course.
             document.getElementById('delete-course-btn').onclick = () => {
                 const id = document.getElementById('course-id').value;
-                deleteCourse(id); // Call the new deleteCourse function
-                closeModal(courseModal);
+                deleteCourse(id); 
+                closeModal(courseModal); // Close the course details modal
             };
 
             function deleteLink(id) {
@@ -1085,19 +2275,23 @@
             }
 
             function deleteCourse(id) {
-                courses = courses.filter(c => c.id !== id);
-                // Also remove any tasks associated with this course
-                Object.keys(tasks).forEach(key => {
-                    tasks[key] = tasks[key].filter(t => t.courseId !== id);
-                });
+                showMessageBox("Are you sure you want to delete this course? This will also remove all its associated classes and all instances of those classes from your timetable. Click OK to confirm.");
+                document.getElementById('messageBox').querySelector('button').onclick = () => {
+                    hideMessageBox();
+                    courses = courses.filter(c => c.id !== id);
+                    // Also remove any tasks associated with this course
+                    Object.keys(tasks).forEach(key => {
+                        tasks[key] = tasks[key].filter(t => t.courseId !== id);
+                    });
 
-                // If the deleted course was active, clear selection
-                if (activeCourseId === id) {
-                    clearCourseSelection();
-                }
-                renderCourses();
-                renderTimetable(); // Re-render timetable to reflect task deletions
-                saveState();
+                    // If the deleted course was active, clear selection
+                    if (activeCourseId === id) {
+                        clearCourseSelection();
+                    }
+                    renderCourses();
+                    renderTimetable(); // Re-render timetable to reflect task deletions
+                    saveState();
+                };
             }
 
             toggleDeleteLinkBtn.addEventListener('click', () => {
@@ -1129,6 +2323,8 @@
             document.getElementById('cancel-btn').onclick = () => closeModal(taskModal);
             document.getElementById('cancel-link-btn').onclick = () => closeModal(linkModal);
             document.getElementById('cancel-course-btn').onclick = () => closeModal(courseModal); 
+            closeUpcomingTasksModalBtn.onclick = () => closeModal(upcomingTasksDetailsModal);
+
 
             document.getElementById('add-link-btn').onclick = () => openLinkModal();
             document.getElementById('add-course-btn').onclick = () => openCourseModal(); 
@@ -1186,6 +2382,7 @@
                 }
                 renderTimetable(); 
                 saveState(); 
+                renderInfoBoxContent(); // Update info box
             };
             document.getElementById('next-week').onclick = () => { 
                 currentWeek++; 
@@ -1196,6 +2393,7 @@
                 }
                 renderTimetable(); 
                 saveState(); 
+                renderInfoBoxContent(); // Update info box
             };
             document.getElementById('weekly-goal').addEventListener('input', saveState);
 
@@ -1218,10 +2416,14 @@
                     hideMessageBox();
                     tasks = {}; // Clear all tasks
                     weekDates = {}; // Clear all saved dates
+                    upcomingTasks = []; // Clear all upcoming tasks
+                    selectedDay = { week: null, dayIndex: null }; // Reset selected day
                     document.getElementById('weekly-goal').value = ''; // Clear goal for current week
                     setWeekToCurrentDate(currentWeek); // Reset current week's date to today
                     closeModal(resetModal);
                     renderTimetable();
+                    renderUpcomingTasks(); // Re-render upcoming tasks
+                    renderInfoBoxContent(); // Update info box
                     saveState();
                 };
             };
@@ -1233,6 +2435,8 @@
                     weekDates: weekDates,
                     links: links, // Include quick links in export
                     courses: courses, // Include courses
+                    upcomingTasks: upcomingTasks, // Include upcoming tasks
+                    selectedDay: selectedDay, // Include selected day
                     activeCourseId: activeCourseId, // Include active course ID
                     activeCourseColor: activeCourseColor, // Include active course color
                     isCourseDeleteMode: isCourseDeleteMode, // Include delete mode state
@@ -1240,7 +2444,10 @@
                     weeklyGoal: document.getElementById('weekly-goal').value, // Also export current week's goal
                     customBackground: localStorage.getItem('customBackground'), // Include custom background
                     blurAmount: localStorage.getItem('blurAmount'), // Include blur amount
-                    animationLevel: animationLevel // Include animation level
+                    animationLevel: animationLevel, // Include animation level
+                    displayedUpcomingTaskId: displayedUpcomingTaskId, // Include displayed upcoming task ID
+                    classTypes: classTypes,
+                    venues: venues
                 };
                 const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
 
@@ -1279,11 +2486,16 @@
                             weekDates = importedData.weekDates || {};
                             links = importedData.links || [];
                             courses = importedData.courses || []; 
+                            upcomingTasks = importedData.upcomingTasks || [];
+                            selectedDay = importedData.selectedDay !== undefined ? importedData.selectedDay : { week: null, dayIndex: null };
                             activeCourseId = importedData.activeCourseId !== undefined ? importedData.activeCourseId : null; 
                             activeCourseColor = importedData.activeCourseColor || 'bg-blue-500'; 
                             isCourseDeleteMode = importedData.isCourseDeleteMode !== undefined ? importedData.isCourseDeleteMode : false; 
                             currentWeek = importedData.currentWeek !== undefined ? importedData.currentWeek : 1;
                             document.getElementById('weekly-goal').value = importedData.weeklyGoal || '';
+                            displayedUpcomingTaskId = importedData.displayedUpcomingTaskId !== undefined ? importedData.displayedUpcomingTaskId : null;
+                            classTypes = importedData.classTypes || ['Lecture', 'Workshop', 'Tutorial', 'LAB'];
+                            venues = importedData.venues || [];
                             
                             // Apply imported custom background and blur
                             if (importedData.customBackground) {
@@ -1313,6 +2525,8 @@
                             renderTimetable(); // Re-render the UI with new data
                             renderLinks(); // Re-render quick links
                             renderCourses(); // Re-render courses
+                            renderUpcomingTasks(); // Re-render upcoming tasks
+                            renderInfoBoxContent(); // Update info box
                             showMessageBox('Data imported successfully!');
 
                         } catch (error) {
@@ -1420,11 +2634,104 @@
                 document.body.classList.add(`animation-${level}`);
             }
 
+            // --- Sidebar Logic ---
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+            });
+
+            toggleUpcomingTasksBtn.addEventListener('click', () => {
+                upcomingTasksContent.classList.toggle('open');
+                upcomingTasksToggleIcon.classList.toggle('rotate-180'); // Rotate arrow icon
+            });
+
+            // --- Info Box Interaction ---
+            infoBox.addEventListener('click', () => {
+                openUpcomingTasksDetailsModal();
+            });
+
+            infoBoxClearSelectionBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent opening the modal when clearing selection
+                displayedUpcomingTaskId = null;
+                renderInfoBoxContent();
+            });
+
+            // --- Select Class/Custom Task Modal Logic ---
+            let currentTaskDay, currentTaskRow; // To pass context to task modal
+
+            function openSelectClassModal(day, row) {
+                currentTaskDay = day;
+                currentTaskRow = row;
+                selectClassModal.dataset.day = day; // Store for custom task button
+                selectClassModal.dataset.row = row; // Store for custom task button
+                renderCoursesForSelection();
+                openModal(selectClassModal);
+            }
+
+            function renderCoursesForSelection() {
+                selectCourseList.innerHTML = '';
+                if (courses.length === 0) {
+                    selectCourseList.innerHTML = `<p class="themed-text-secondary text-sm">No courses available. Add some in 'My Courses' section.</p>`;
+                    return;
+                }
+
+                courses.forEach(course => {
+                    const courseDiv = document.createElement('div');
+                    courseDiv.className = `p-2 mb-2 rounded-md themed-bg-tertiary themed-text cursor-pointer hover:bg-gray-600 transition`;
+                    courseDiv.innerHTML = `<p class="font-semibold">${course.name}</p>`;
+                    
+                    const classesListDiv = document.createElement('div');
+                    classesListDiv.className = 'ml-4 mt-2 space-y-1 hidden'; // Initially hidden
+                    
+                    if (course.classes && course.classes.length > 0) {
+                        course.classes.forEach(cls => {
+                            const classItem = document.createElement('div');
+                            classItem.className = `p-2 rounded-md ${course.color} text-white text-sm cursor-pointer hover:opacity-90 transition`;
+                            classItem.textContent = `${cls.name} (${cls.type || 'N/A'})`;
+                            classItem.addEventListener('click', (e) => {
+                                e.stopPropagation(); // Prevent courseDiv click
+                                closeModal(selectClassModal);
+                                // Open task modal with pre-filled class data
+                                openTaskModal(currentTaskDay, currentTaskRow, {
+                                    name: cls.name,
+                                    color: course.color,
+                                    courseId: course.id,
+                                    classId: cls.id,
+                                    startTime: cls.startTime,
+                                    endTime: cls.endTime,
+                                    locationType: cls.locationType,
+                                    venue: cls.venue
+                                });
+                            });
+                            classesListDiv.appendChild(classItem);
+                        });
+                    } else {
+                        const noClassesMsg = document.createElement('p');
+                        noClassesMsg.className = 'text-xs themed-text-secondary mt-1';
+                        noClassesMsg.textContent = 'No classes defined for this course.';
+                        classesListDiv.appendChild(noClassesMsg);
+                    }
+
+                    courseDiv.addEventListener('click', () => {
+                        classesListDiv.classList.toggle('hidden');
+                    });
+
+                    selectCourseList.appendChild(courseDiv);
+                    selectCourseList.appendChild(classesListDiv);
+                });
+            }
+
+
             // --- Initial Load ---
             loadState();
             renderTimetable();
             renderLinks();
             renderCourses(); 
+            renderUpcomingTasks();
+            renderInfoBoxContent(); // Initial render of info box
         });
     </script>
 </body>
