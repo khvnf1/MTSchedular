@@ -55,7 +55,8 @@
         .timetable-grid {
             display: grid;
             grid-template-columns: 60px repeat(7, 1fr);
-            grid-template-rows: auto repeat(6, minmax(100px, auto));
+            /* Changed to auto for all rows to allow vertical expansion */
+            grid-template-rows: auto repeat(6, auto); 
             gap: 4px;
         }
         /* Apply blur and transparency to themed-bg elements when custom background is active */
@@ -82,22 +83,8 @@
             position: relative;
             background-color: var(--bg-secondary-color); /* Default, overridden by .custom-background-active .themed-bg */
             align-content: start;
-            /* Added for multiple tasks */
-            max-height: 150px; /* Adjust as needed */
-            overflow-y: auto;
-            scrollbar-width: thin; /* For Firefox */
-            scrollbar-color: var(--border-color) transparent; /* For Firefox */
-        }
-        /* Custom scrollbar for Webkit browsers */
-        .grid-cell::-webkit-scrollbar {
-            width: 6px;
-        }
-        .grid-cell::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .grid-cell::-webkit-scrollbar-thumb {
-            background-color: var(--border-color);
-            border-radius: 10px;
+            /* Removed max-height and overflow-y: auto to allow vertical expansion */
+            /* Removed scrollbar styles as they are no longer needed */
         }
 
         .grid-cell:hover .add-btn {
