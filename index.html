@@ -82,7 +82,24 @@
             position: relative;
             background-color: var(--bg-secondary-color); /* Default, overridden by .custom-background-active .themed-bg */
             align-content: start;
+            /* Added for multiple tasks */
+            max-height: 150px; /* Adjust as needed */
+            overflow-y: auto;
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: var(--border-color) transparent; /* For Firefox */
         }
+        /* Custom scrollbar for Webkit browsers */
+        .grid-cell::-webkit-scrollbar {
+            width: 6px;
+        }
+        .grid-cell::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .grid-cell::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
+        }
+
         .grid-cell:hover .add-btn {
             opacity: 1;
         }
@@ -306,6 +323,11 @@
             top: 1rem;
             left: 1rem;
             z-index: 60; /* Above sidebar */
+            transition: opacity 0.3s ease, visibility 0.3s ease; /* Added transition for smooth hide/show */
+        }
+        #sidebar-toggle.hidden-button { /* New class for hiding the button */
+            opacity: 0;
+            visibility: hidden;
         }
         .sidebar-content-wrapper {
             overflow-y: auto; /* Enable scrolling for sidebar content */
@@ -2296,19 +2318,24 @@
                 showMessageBox("Are you sure you want to delete this course? This will also remove all its associated classes and all instances of those classes from your timetable. Click OK to confirm.");
                 document.getElementById('messageBox').querySelector('button').onclick = () => {
                     hideMessageBox();
-                    courses = courses.filter(c => c.id !== id);
-                    // Also remove any tasks associated with this course
-                    Object.keys(tasks).forEach(key => {
-                        tasks[key] = tasks[key].filter(t => t.courseId !== id);
-                    });
-
-                    // If the deleted course was active, clear selection
-                    if (activeCourseId === id) {
-                        clearCourseSelection();
+                    const course = courses.find(c => c.id === id);
+                    if (course) {
+                        courses = courses.filter(c => c.id !== id); // Remove the course itself
+                        // Remove all tasks in the timetable that were instances of this course's classes
+                        Object.keys(tasks).forEach(key => {
+                            tasks[key] = tasks[key].filter(task => task.courseId !== id);
+                        });
+                        // If the deleted course was active, clear selection
+                        if (activeCourseId === id) {
+                            activeCourseId = null;
+                            activeCourseColor = 'bg-blue-500';
+                        }
+                        renderCourses(); // Re-render courses list
+                        renderTimetable(); // Re-render timetable to reflect deleted tasks
+                        saveState();
                     }
-                    renderCourses();
-                    renderTimetable(); // Re-render timetable to reflect task deletions
-                    saveState();
+                    closeModal(courseModal); // Close course modal if open
+                    closeModal(courseManagementModal); // Close management modal if open
                 };
             }
 
@@ -2660,10 +2687,12 @@
             // --- Sidebar Logic ---
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
+                sidebarToggle.classList.toggle('hidden-button', sidebar.classList.contains('open')); // Hide button when sidebar opens
             });
 
             closeSidebarBtn.addEventListener('click', () => {
                 sidebar.classList.remove('open');
+                sidebarToggle.classList.remove('hidden-button'); // Show button when sidebar closes
             });
 
             toggleUpcomingTasksBtn.addEventListener('click', () => {
@@ -2735,17 +2764,33 @@
                             classItem.addEventListener('click', (e) => {
                                 e.stopPropagation(); // Prevent courseDiv click
                                 closeModal(selectClassModal);
-                                // Open task modal with pre-filled class data
-                                openTaskModal(currentTaskDay, currentTaskRow, {
-                                    name: cls.name,
-                                    color: course.color,
-                                    courseId: course.id,
-                                    classId: cls.id,
-                                    startTime: cls.startTime,
-                                    endTime: cls.endTime,
-                                    locationType: cls.locationType,
-                                    venue: cls.venue
-                                });
+                                // Open task modal for a NEW task, then pre-fill its details
+                                openTaskModal(currentTaskDay, currentTaskRow); // Pass no task object to ensure new ID generation
+                                // Now, pre-fill the form fields in the task modal after it's opened
+                                document.getElementById('task-name').value = cls.name;
+                                document.getElementById('task-color').value = course.color;
+                                document.getElementById('task-course-id').value = course.id;
+                                document.getElementById('task-class-id').value = cls.id;
+                                document.getElementById('class-start-time').value = cls.startTime || '';
+                                document.getElementById('class-end-time').value = cls.endTime || '';
+                                
+                                // Set location type radio and venue input
+                                const locationTypeRadio = document.querySelector(`input[name="locationType"][value="${cls.locationType || 'Online'}"]`);
+                                if (locationTypeRadio) {
+                                    locationTypeRadio.checked = true;
+                                    if (cls.locationType === 'In-person' && cls.venue) {
+                                        document.getElementById('class-venue').classList.remove('hidden');
+                                        document.getElementById('class-venue').value = cls.venue;
+                                    } else {
+                                        document.getElementById('class-venue').classList.add('hidden');
+                                        document.getElementById('class-venue').value = '';
+                                    }
+                                }
+
+                                // Also ensure the correct color option is highlighted in the task modal
+                                document.querySelectorAll('#color-picker .color-option').forEach(el => el.style.border = '2px solid transparent');
+                                const selectedColorEl = document.querySelector(`#color-picker .color-option[data-color="${course.color}"]`);
+                                if (selectedColorEl) selectedColorEl.style.border = '2px solid white';
                             });
                             classesListDiv.appendChild(classItem);
                         });
